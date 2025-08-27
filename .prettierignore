@@ -1,0 +1,11 @@
+node_modules
+dist
+.next
+coverage
+contracts/evm/lib
+contracts/evm/out
+contracts/evm/cache
+contracts/evm/broadcast
+contracts/solana/target
+apps/api/drizzle
+*.md
