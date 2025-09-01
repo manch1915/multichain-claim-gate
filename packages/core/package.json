@@ -1,0 +1,31 @@
+{
+  "name": "@mcg/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "fixtures": "node scripts/write-fixtures.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "@openzeppelin/merkle-tree": "1.0.8",
+    "@solana/kit": "8.5.0",
+    "viem": "2.57.7",
+    "zod": "4.6.7"
+  }
+}
