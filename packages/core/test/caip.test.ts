@@ -27,6 +27,19 @@ describe('CAIP helpers', () => {
   it('rejects malformed ids', () => {
     expect(() => parseAccountId('eip155:1')).toThrow()
     expect(() => parseAccountId('eip155:1:nope')).toThrow()
+    expect(() => parseAccountId('eip155:0x1:0x70997970C51812dc3A010C7d01b50e0d17dc79C8')).toThrow()
+    expect(() => parseAccountId('cosmos:hub:0x70997970C51812dc3A010C7d01b50e0d17dc79C8')).toThrow()
+  })
+
+  it('rejects an address from the other family', () => {
+    expect(() =>
+      parseAccountId(
+        'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1:0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+      ),
+    ).toThrow(/does not belong/)
+    expect(() =>
+      parseAccountId('eip155:84532:7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU'),
+    ).toThrow(/does not belong/)
   })
 
   it('detects address families', () => {

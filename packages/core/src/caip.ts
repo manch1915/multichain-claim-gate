@@ -2,6 +2,8 @@ import { getAddress, isAddress } from 'viem'
 import { isAddress as isSolanaAddress } from '@solana/kit'
 import type { ChainFamily } from './chains.js'
 
+const CAIP2 = /^(eip155:[1-9]\d{0,19}|solana:[1-9A-HJ-NP-Za-km-z]{32})$/
+
 export interface AccountId {
   /** CAIP-2 chain id. */
   chain: string
@@ -15,7 +17,12 @@ export function parseAccountId(value: string): AccountId {
     throw new Error(`Invalid CAIP-10 account id: ${value}`)
   }
   const [namespace, reference, address] = parts as [string, string, string]
-  return { chain: `${namespace}:${reference}`, address: normalizeAddress(address) }
+  const chain = `${namespace}:${reference}`
+  if (!CAIP2.test(chain)) throw new Error(`Invalid CAIP-2 chain id: ${chain}`)
+  if (familyOfChain(chain) !== detectFamily(address)) {
+    throw new Error(`Address ${address} does not belong to chain ${chain}`)
+  }
+  return { chain, address: normalizeAddress(address) }
 }
 
 export function formatAccountId(account: AccountId): string {
