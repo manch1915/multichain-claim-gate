@@ -1,10 +1,10 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
-import { toFunctionSelector } from 'viem'
+import { isHex } from 'viem'
 import { AppError } from '../domain/errors.js'
+import { isSponsorableClaim } from './paymaster-policy.js'
 
 const TOKEN_TTL_MS = 10 * 60_000
 const ALLOWED_METHODS = new Set(['pm_getPaymasterStubData', 'pm_getPaymasterData'])
-const CLAIM_SELECTOR = toFunctionSelector('claim(address,uint256,bytes32[])').slice(2)
 
 export interface PaymasterUpstream {
   forward(chainId: number, body: unknown): Promise<unknown>
@@ -63,12 +63,15 @@ export class PaymasterService {
     }
 
     const [userOp] = (request.params ?? []) as [{ sender?: string; callData?: string } | undefined]
-    const distributor = this.distributors.get(chainId)?.toLowerCase().slice(2)
-    const callData = userOp?.callData?.toLowerCase() ?? ''
-    if (userOp?.sender?.toLowerCase() !== payload.address) {
+    const distributor = this.distributors.get(chainId)
+    if (!userOp?.sender || userOp.sender.toLowerCase() !== payload.address) {
       return rpcError(request.id, -32602, 'Sender does not match the signed-in wallet')
     }
-    if (!distributor || !callData.includes(distributor) || !callData.includes(CLAIM_SELECTOR)) {
+    if (
+      !distributor ||
+      !isHex(userOp.callData) ||
+      !isSponsorableClaim(userOp.callData, userOp.sender, distributor)
+    ) {
       return rpcError(request.id, -32602, 'Only airdrop claims are sponsored')
     }
     return this.upstream.forward(chainId, request)

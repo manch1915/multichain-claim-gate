@@ -1,5 +1,6 @@
 import { buildEvmTree, buildSolanaTree, chains, type ChainFamily } from '@mcg/core'
 import type { AllocationRecord, TreeSnapshot } from '../domain/models.js'
+import { safeErrorMessage } from '../domain/safe-error.js'
 import type { EvmGateway, EvmSponsor, SolanaGateway } from '../ports/chains.js'
 import type { CampaignRepository } from '../ports/repositories.js'
 import type { Logger } from './logger.js'
@@ -98,7 +99,7 @@ export class RootPublisher {
             snapshot.root,
             'failed',
             null,
-            (error as Error).message,
+            safeErrorMessage(error),
           )
           throw error
         }
@@ -120,7 +121,7 @@ export class RootPublisher {
       const ok = await solana.confirm(signature)
       await this.record(campaignId, chain, snapshot.root, ok ? 'confirmed' : 'failed', signature)
     } catch (error) {
-      await this.record(campaignId, chain, snapshot.root, 'failed', null, (error as Error).message)
+      await this.record(campaignId, chain, snapshot.root, 'failed', null, safeErrorMessage(error))
       throw error
     }
   }

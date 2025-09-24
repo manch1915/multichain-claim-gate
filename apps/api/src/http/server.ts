@@ -10,14 +10,14 @@ import { claimRoutes } from './routes/claims.js'
 import { gateRoutes } from './routes/gates.js'
 import { paymasterRoutes } from './routes/paymaster.js'
 import { portfolioRoutes } from './routes/portfolio.js'
-import { SESSION_COOKIE } from './session.js'
 
 export async function buildServer(
   container: Container,
   options: FastifyServerOptions = {},
 ): Promise<FastifyInstance> {
   const app = Fastify({
-    trustProxy: true,
+    // Only private-network hops (Caddy, the Next.js rewrite) may set X-Forwarded-For.
+    trustProxy: 'loopback,linklocal,uniquelocal',
     bodyLimit: 1_048_576,
     ...options,
   })
@@ -32,7 +32,6 @@ export async function buildServer(
   await app.register(rateLimit, {
     max: 120,
     timeWindow: '1 minute',
-    keyGenerator: (request) => request.cookies[SESSION_COOKIE] ?? request.ip,
   })
 
   app.setErrorHandler((error, request, reply) => {

@@ -94,7 +94,7 @@ export class PortfolioService {
       this.history
         .history(chain, address, 8)
         .then((items) => ({ items }))
-        .catch((error: unknown) => ({ items: [], error: (error as Error).message })),
+        .catch(() => ({ items: [], error: true })),
     ])
 
     return {

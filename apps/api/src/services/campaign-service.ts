@@ -128,12 +128,12 @@ export class CampaignService {
         claimed: onChain.claimed.toString(),
         claimable: claimable.toString(),
       }
-    } catch (error) {
+    } catch {
       return {
         ...base,
         status: 'unavailable',
         allocated: allocation.amount.toString(),
-        error: (error as Error).message,
+        error: 'This network is not responding right now',
       }
     }
   }

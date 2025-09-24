@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { chains, familyOfChain } from '@mcg/core'
 import { AppError } from '../domain/errors.js'
 import type { Session, SponsoredAction } from '../domain/models.js'
+import { safeErrorMessage } from '../domain/safe-error.js'
 import type { EvmGateway, EvmSponsor, SolanaGateway } from '../ports/chains.js'
 import type { ActionRepository, PreparedTransactionRepository } from '../ports/repositories.js'
 import type { CampaignService } from './campaign-service.js'
@@ -199,7 +200,7 @@ export class ClaimService {
   private async fail(id: string, error: unknown) {
     this.logger.error({ err: error, actionId: id }, 'sponsored action failed')
     await this.actions
-      .update(id, { status: 'failed', error: shortError(error) })
+      .update(id, { status: 'failed', error: safeErrorMessage(error) })
       .catch(() => undefined)
   }
 
@@ -231,9 +232,4 @@ function accountFor(session: Session, chain: string): string {
 
 function sameAddress(a: string, b: string): boolean {
   return a.startsWith('0x') ? a.toLowerCase() === b.toLowerCase() : a === b
-}
-
-function shortError(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error)
-  return message.split('\n')[0]?.slice(0, 300) ?? 'Unknown error'
 }
