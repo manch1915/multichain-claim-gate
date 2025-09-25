@@ -91,10 +91,10 @@ function decode7579(mode: Hex, executionCalldata: Hex): InnerCall[] | undefined 
   return undefined
 }
 
-/** True when every call is a zero-value claim on our distributor for the operation's sender. */
+/** True when the operation makes exactly one zero-value claim on our distributor for its sender. */
 export function isSponsorableClaim(callData: Hex, sender: string, distributor: string): boolean {
   const calls = extractCalls(callData)
-  if (!calls || calls.length === 0) return false
+  if (!calls || calls.length !== 1) return false
   return calls.every((call) => {
     if (call.target.toLowerCase() !== distributor.toLowerCase() || call.value !== 0n) return false
     try {
@@ -104,4 +104,36 @@ export function isSponsorableClaim(callData: Hex, sender: string, distributor: s
       return false
     }
   })
+}
+
+// Account code we are willing to sponsor when an operation deploys or delegates an account.
+const KNOWN_FACTORIES = new Set([
+  '0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a', // Coinbase Smart Wallet v1
+  '0xba5ed110efdba3d005bfc882d75358acbbb85842', // Coinbase Smart Wallet v1.1
+])
+const KNOWN_7702_DELEGATES = new Set([
+  '0x63c0c19a282a1b52b07dd5a65b58948a07dae32b', // MetaMask EIP7702StatelessDeleGator
+  '0xe6cae83bde06e4c305530e199d7217f42808555b', // Simple7702Account (EntryPoint 0.8)
+])
+// EntryPoint 0.8 marks 7702 operations with this factory value.
+const EIP7702_FACTORY_MARKER = /^0x7702(0+)?$/i
+
+/** Rejects operations that deploy or delegate to account code we do not know. */
+export function usesKnownAccountCode(userOp: Record<string, unknown>): boolean {
+  const auth = userOp['eip7702Auth'] as { address?: unknown } | undefined
+  if (auth !== undefined && auth !== null) {
+    if (typeof auth.address !== 'string' || !KNOWN_7702_DELEGATES.has(auth.address.toLowerCase())) {
+      return false
+    }
+  }
+
+  const factory = userOp['factory'] ?? sliceInitCode(userOp['initCode'])
+  if (factory === undefined || factory === null || factory === '0x') return true
+  if (typeof factory !== 'string') return false
+  if (EIP7702_FACTORY_MARKER.test(factory)) return auth !== undefined && auth !== null
+  return KNOWN_FACTORIES.has(factory.toLowerCase())
+}
+
+function sliceInitCode(initCode: unknown): string | undefined {
+  return typeof initCode === 'string' && initCode.length >= 42 ? initCode.slice(0, 42) : undefined
 }

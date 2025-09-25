@@ -1,5 +1,6 @@
 import { chains, publicChainKeys } from '@mcg/core'
 import { createKeyPairSignerFromBytes, createSolanaRpc, getBase58Encoder } from '@solana/kit'
+import { getAddress } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import type { Config } from './config.js'
 import type { SignatureVerifier } from './ports/auth.js'
@@ -243,6 +244,11 @@ export function createContainer(
       env.APP_SECRET,
       infra.distributorsByChainId,
       infra.paymasterUpstream,
+      (chainId, address) =>
+        campaigns.proofFor(env.DEMO_CAMPAIGN_ID, `eip155:${chainId}`, getAddress(address)).then(
+          () => true,
+          () => false,
+        ),
     ),
     publisher,
     secureCookies: env.PUBLIC_ORIGIN.startsWith('https://'),

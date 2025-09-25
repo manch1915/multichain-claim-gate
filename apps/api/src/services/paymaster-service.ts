@@ -1,10 +1,24 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { isHex } from 'viem'
 import { AppError } from '../domain/errors.js'
-import { isSponsorableClaim } from './paymaster-policy.js'
+import { isSponsorableClaim, usesKnownAccountCode } from './paymaster-policy.js'
 
 const TOKEN_TTL_MS = 10 * 60_000
 const ALLOWED_METHODS = new Set(['pm_getPaymasterStubData', 'pm_getPaymasterData'])
+const REQUESTS_PER_ADDRESS = 10
+const RATE_WINDOW_MS = 10 * 60_000
+
+// A claim costs well under these; anything bigger is an account burning sponsored gas.
+const GAS_CAPS: Record<string, bigint> = {
+  callGasLimit: 400_000n,
+  verificationGasLimit: 600_000n,
+  preVerificationGas: 300_000n,
+  paymasterVerificationGasLimit: 300_000n,
+  paymasterPostOpGasLimit: 100_000n,
+}
+
+/** Whether the address still has something to claim on this chain right now. */
+export type ClaimEligibility = (chainId: number, address: string) => Promise<boolean>
 
 export interface PaymasterUpstream {
   forward(chainId: number, body: unknown): Promise<unknown>
@@ -33,7 +47,10 @@ export class PaymasterService {
     private readonly secret: string,
     private readonly distributors: Map<number, string>,
     private readonly upstream: PaymasterUpstream | undefined,
+    private readonly isEligible: ClaimEligibility,
   ) {}
+
+  private readonly requests = new Map<string, number[]>()
 
   get enabled(): boolean {
     return Boolean(this.upstream)
@@ -62,9 +79,9 @@ export class PaymasterService {
       return rpcError(request.id, -32601, 'Method not supported')
     }
 
-    const [userOp] = (request.params ?? []) as [{ sender?: string; callData?: string } | undefined]
+    const [userOp] = (request.params ?? []) as [Record<string, unknown> | undefined]
     const distributor = this.distributors.get(chainId)
-    if (!userOp?.sender || userOp.sender.toLowerCase() !== payload.address) {
+    if (typeof userOp?.sender !== 'string' || userOp.sender.toLowerCase() !== payload.address) {
       return rpcError(request.id, -32602, 'Sender does not match the signed-in wallet')
     }
     if (
@@ -74,7 +91,27 @@ export class PaymasterService {
     ) {
       return rpcError(request.id, -32602, 'Only airdrop claims are sponsored')
     }
+    if (!usesKnownAccountCode(userOp)) {
+      return rpcError(request.id, -32602, 'This smart account implementation is not supported')
+    }
+    if (!withinGasCaps(userOp)) {
+      return rpcError(request.id, -32602, 'Gas limits are too high for a claim')
+    }
+    if (!this.allowRequest(payload.address, now)) {
+      return rpcError(request.id, -32005, 'Too many sponsorship requests for this wallet')
+    }
+    if (!(await this.isEligible(chainId, userOp.sender))) {
+      return rpcError(request.id, -32602, 'Nothing to claim for this wallet on this network')
+    }
     return this.upstream.forward(chainId, request)
+  }
+
+  private allowRequest(address: string, now: number): boolean {
+    const recent = (this.requests.get(address) ?? []).filter((time) => now - time < RATE_WINDOW_MS)
+    if (recent.length >= REQUESTS_PER_ADDRESS) return false
+    recent.push(now)
+    this.requests.set(address, recent)
+    return true
   }
 
   private verifyToken(token: string, now: number): TokenPayload {
@@ -93,6 +130,15 @@ export class PaymasterService {
   private sign(body: string): string {
     return createHmac('sha256', this.secret).update(`paymaster:${body}`).digest('base64url')
   }
+}
+
+function withinGasCaps(userOp: Record<string, unknown>): boolean {
+  return Object.entries(GAS_CAPS).every(([field, cap]) => {
+    const value = userOp[field]
+    if (value === undefined || value === null) return true
+    if (typeof value !== 'string' || !isHex(value)) return false
+    return BigInt(value) <= cap
+  })
 }
 
 function rpcError(id: unknown, code: number, message: string) {

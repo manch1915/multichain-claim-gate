@@ -9,7 +9,7 @@ import {
 } from 'viem'
 import { describe, expect, it } from 'vitest'
 import { encodeClaim } from '../src/infra/evm/calls.js'
-import { isSponsorableClaim } from '../src/services/paymaster-policy.js'
+import { isSponsorableClaim, usesKnownAccountCode } from '../src/services/paymaster-policy.js'
 
 const distributor = '0x00000000000000000000000000000000000d1570'
 const sender = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
@@ -96,5 +96,27 @@ describe('paymaster policy', () => {
   it('fails closed on unknown wrappers', () => {
     expect(isSponsorableClaim(claim(), sender, distributor)).toBe(false)
     expect(isSponsorableClaim('0xdeadbeef', sender, distributor)).toBe(false)
+  })
+
+  it('accepts known account code and rejects the rest', () => {
+    expect(usesKnownAccountCode({})).toBe(true)
+    expect(usesKnownAccountCode({ factory: '0x0BA5ED0c6AA8c49038F819E587E2633c4A9F428a' })).toBe(
+      true,
+    )
+    expect(usesKnownAccountCode({ factory: '0x000000000000000000000000000000000000dead' })).toBe(
+      false,
+    )
+    expect(
+      usesKnownAccountCode({
+        factory: '0x7702',
+        eip7702Auth: { address: '0x63c0c19a282a1B52b07dD5a65b58948A07DAE32B' },
+      }),
+    ).toBe(true)
+    expect(
+      usesKnownAccountCode({
+        eip7702Auth: { address: '0x000000000000000000000000000000000000dead' },
+      }),
+    ).toBe(false)
+    expect(usesKnownAccountCode({ factory: '0x7702' })).toBe(false)
   })
 })

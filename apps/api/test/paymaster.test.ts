@@ -10,6 +10,8 @@ const service = new PaymasterService(
   'paymaster-secret-for-tests-0123456789',
   new Map([[84532, distributor]]),
   { forward: async (_chainId, body) => (forwarded.push(body), { result: 'ok' }) },
+  async (_chainId, address) =>
+    address.toLowerCase() !== '0x90f79bf6eb2c4f870365e785982e1f101e93b906',
 )
 
 // Smart wallets wrap calls in their own execute(), so the claim shows up inside the callData.
@@ -34,6 +36,38 @@ function request(callData: string, from = sender) {
 }
 
 describe('ERC-7677 paymaster proxy', () => {
+  it('refuses wallets with nothing to claim', async () => {
+    const empty = '0x90F79bf6EB2c4f870365E785982E1f101E93b906'
+    const token = service.issueToken(empty, 84532)
+    const data = walletCallData(encodeClaim(distributor, empty, 10n, []).data)
+    const result = await service.handle(84532, token, request(data, empty))
+    expect(result).toMatchObject({ error: { message: /Nothing to claim/ } })
+  })
+
+  it('refuses inflated gas limits and unknown account factories', async () => {
+    const token = service.issueToken(sender, 84532)
+    const base = request(walletCallData(claimData))
+    const op = base.params[0] as Record<string, unknown>
+    const gassy = {
+      ...base,
+      params: [{ ...op, callGasLimit: '0x5f5e100' }, ...base.params.slice(1)],
+    }
+    expect(await service.handle(84532, token, gassy)).toMatchObject({
+      error: { message: /Gas limits/ },
+    })
+
+    const factory = {
+      ...base,
+      params: [
+        { ...op, factory: '0x000000000000000000000000000000000000dead' },
+        ...base.params.slice(1),
+      ],
+    }
+    expect(await service.handle(84532, token, factory)).toMatchObject({
+      error: { message: /not supported/ },
+    })
+  })
+
   it('forwards a claim from the token owner', async () => {
     const token = service.issueToken(sender, 84532)
     const result = await service.handle(84532, token, request(walletCallData(claimData)))
