@@ -91,19 +91,32 @@ function decode7579(mode: Hex, executionCalldata: Hex): InnerCall[] | undefined 
   return undefined
 }
 
-/** True when the operation makes exactly one zero-value claim on our distributor for its sender. */
-export function isSponsorableClaim(callData: Hex, sender: string, distributor: string): boolean {
+/**
+ * Returns the claim arguments when the operation makes exactly one zero-value claim on our
+ * distributor for its own sender, and undefined for anything else.
+ */
+export function decodeSponsorableClaim(
+  callData: Hex,
+  sender: string,
+  distributor: string,
+): { amount: bigint; proof: Hex[] } | undefined {
   const calls = extractCalls(callData)
-  if (!calls || calls.length !== 1) return false
-  return calls.every((call) => {
-    if (call.target.toLowerCase() !== distributor.toLowerCase() || call.value !== 0n) return false
-    try {
-      const claim = decodeFunctionData({ abi: distributorClaim, data: call.data })
-      return claim.args[0].toLowerCase() === sender.toLowerCase()
-    } catch {
-      return false
-    }
-  })
+  if (!calls || calls.length !== 1) return undefined
+  const [call] = calls as [InnerCall]
+  if (call.target.toLowerCase() !== distributor.toLowerCase() || call.value !== 0n) return undefined
+  try {
+    const claim = decodeFunctionData({ abi: distributorClaim, data: call.data })
+    const [account, amount, proof] = claim.args
+    return account.toLowerCase() === sender.toLowerCase()
+      ? { amount, proof: [...proof] }
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export function isSponsorableClaim(callData: Hex, sender: string, distributor: string): boolean {
+  return decodeSponsorableClaim(callData, sender, distributor) !== undefined
 }
 
 // Account code we are willing to sponsor when an operation deploys or delegates an account.
@@ -120,20 +133,36 @@ const EIP7702_FACTORY_MARKER = /^0x7702(0+)?$/i
 
 /** Rejects operations that deploy or delegate to account code we do not know. */
 export function usesKnownAccountCode(userOp: Record<string, unknown>): boolean {
-  const auth = userOp['eip7702Auth'] as { address?: unknown } | undefined
-  if (auth !== undefined && auth !== null) {
+  const auth = userOp['eip7702Auth'] as { address?: unknown } | undefined | null
+  const hasAuth = auth !== undefined && auth !== null
+  if (hasAuth) {
     if (typeof auth.address !== 'string' || !KNOWN_7702_DELEGATES.has(auth.address.toLowerCase())) {
       return false
     }
   }
 
-  const factory = userOp['factory'] ?? sliceInitCode(userOp['initCode'])
-  if (factory === undefined || factory === null || factory === '0x') return true
-  if (typeof factory !== 'string') return false
-  if (EIP7702_FACTORY_MARKER.test(factory)) return auth !== undefined && auth !== null
-  return KNOWN_FACTORIES.has(factory.toLowerCase())
+  // EntryPoint 0.6 sends initCode, 0.7+ sends factory. Check each one that is present on its own.
+  const factory = presentHex(userOp['factory'])
+  const initCode = presentHex(userOp['initCode'])
+  if (factory === false || initCode === false) return false
+  const initFactory = initCode ? initCode.slice(0, 42) : undefined
+  if (factory && initFactory && factory.toLowerCase() !== initFactory.toLowerCase()) return false
+
+  for (const candidate of [factory, initFactory]) {
+    if (!candidate) continue
+    if (EIP7702_FACTORY_MARKER.test(candidate)) {
+      if (!hasAuth) return false
+    } else if (!KNOWN_FACTORIES.has(candidate.toLowerCase())) {
+      return false
+    }
+  }
+  return true
 }
 
-function sliceInitCode(initCode: unknown): string | undefined {
-  return typeof initCode === 'string' && initCode.length >= 42 ? initCode.slice(0, 42) : undefined
+/** undefined when the field is absent or empty, false when it is malformed. */
+function presentHex(value: unknown): string | undefined | false {
+  if (value === undefined || value === null || value === '0x' || value === '') return undefined
+  if (typeof value !== 'string' || !/^0x[0-9a-fA-F]*$/.test(value)) return false
+  if (value.length < 6) return false
+  return value
 }

@@ -246,8 +246,8 @@ export function createContainer(
       infra.paymasterUpstream,
       (chainId, address) =>
         campaigns.proofFor(env.DEMO_CAMPAIGN_ID, `eip155:${chainId}`, getAddress(address)).then(
-          () => true,
-          () => false,
+          (claim) => ({ amount: claim.amount, proof: claim.proof as `0x${string}`[] }),
+          () => undefined,
         ),
     ),
     publisher,

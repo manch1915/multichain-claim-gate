@@ -118,5 +118,14 @@ describe('paymaster policy', () => {
       }),
     ).toBe(false)
     expect(usesKnownAccountCode({ factory: '0x7702' })).toBe(false)
+    expect(
+      usesKnownAccountCode({
+        factory: '0x0BA5ED0c6AA8c49038F819E587E2633c4A9F428a',
+        initCode: '0x000000000000000000000000000000000000dead00',
+      }),
+    ).toBe(false)
+    expect(usesKnownAccountCode({ initCode: '0x000000000000000000000000000000000000dead00' })).toBe(
+      false,
+    )
   })
 })
