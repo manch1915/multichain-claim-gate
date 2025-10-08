@@ -9,8 +9,7 @@ beforeEach(async () => {
   t = await createTestApp()
 })
 afterEach(async () => {
-  t.container.publisher.stop()
-  await t.app.close()
+  await t.close()
 })
 
 async function eligibility(cookie: string) {
@@ -62,7 +61,7 @@ describe('demo whitelist and gasless EVM claim', () => {
   })
 
   it('reports pending publication until the new root is on-chain', async () => {
-    await t.app.close()
+    await t.close()
     t = await createTestApp({ ROOT_PUBLISH_DEBOUNCE_MS: 60_000 })
     const { cookie } = await signInEvm(t.app)
     await t.app.inject({
@@ -217,7 +216,7 @@ describe('whitelist upload', () => {
   })
 
   it('imports for admins and publishes a new root', async () => {
-    await t.app.close()
+    await t.close()
     const admin = evmWallet()
     t = await createTestApp({ ADMIN_ADDRESSES: [admin.address] })
     const { cookie } = await signInEvm(t.app, admin)

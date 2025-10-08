@@ -103,6 +103,15 @@ export class GateService {
     return gate
   }
 
+  async updateRule(id: string, input: unknown): Promise<Gate> {
+    const gate = await this.get(id)
+    const parsed = ruleSchema.safeParse(input)
+    if (!parsed.success) throw new AppError('bad_request', 'Invalid rule', parsed.error.issues)
+    const updated: Gate = { ...gate, rule: parsed.data, updatedAt: new Date() }
+    await this.gates.upsert(updated)
+    return updated
+  }
+
   private async measure(
     condition: Condition,
     accounts: Session['accounts'],

@@ -14,6 +14,18 @@ export async function connectPostgres(
 ): Promise<{ db: Db; close: () => Promise<void> }> {
   const client = postgres(url, { max: 10, onnotice: () => undefined })
   const db = drizzle(client, { schema })
-  await migrate(db, { migrationsFolder })
+  await withRetry(() => migrate(db, { migrationsFolder }))
   return { db, close: () => client.end({ timeout: 5 }) }
+}
+
+/** Postgres refuses connections for a few seconds after a cold start, so wait for it. */
+async function withRetry<T>(task: () => Promise<T>, attempts = 10, delayMs = 2000): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await task()
+    } catch (error) {
+      if (attempt >= attempts) throw error
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
+    }
+  }
 }

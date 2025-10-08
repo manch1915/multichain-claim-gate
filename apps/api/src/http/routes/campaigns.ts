@@ -20,6 +20,17 @@ export const campaignRoutes =
       return { chains: await campaigns.eligibility(id, session) }
     })
 
+    app.get('/campaigns/:id/proof', async (request) => {
+      const { id } = parse(params, request.params)
+      const { chain } = parse(z.object({ chain: z.string().min(8).max(80) }), request.query)
+      const session = await requireSession(auth, request)
+      const account = session.accounts.find((item) =>
+        chain.startsWith('solana:') ? item.family === 'solana' : item.family === 'evm',
+      )
+      if (!account) return { proof: null }
+      return { proof: await campaigns.proofFor(id, chain, account.address) }
+    })
+
     app.post(
       '/campaigns/:id/demo-join',
       { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },

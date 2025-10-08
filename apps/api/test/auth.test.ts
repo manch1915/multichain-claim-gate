@@ -8,7 +8,7 @@ beforeEach(async () => {
   t = await createTestApp()
 })
 afterEach(async () => {
-  await t.app.close()
+  await t.close()
 })
 
 describe('sign-in with Ethereum', () => {
@@ -154,7 +154,7 @@ describe('sessions', () => {
   })
 
   it('flags admin wallets from the environment', async () => {
-    await t.app.close()
+    await t.close()
     const admin = evmWallet()
     t = await createTestApp({ ADMIN_ADDRESSES: [admin.address.toLowerCase()] })
     const { cookie } = await signInEvm(t.app, admin)

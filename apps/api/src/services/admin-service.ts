@@ -36,7 +36,7 @@ export class AdminService {
       publications,
       actions: actionStats.map((row) => ({ ...row, amount: row.amount.toString() })),
       recent: recent.map((item) => ({ ...item, amount: item.amount?.toString() ?? null })),
-      gates: gateStats,
+      gateChecks: gateStats,
     }
   }
 }

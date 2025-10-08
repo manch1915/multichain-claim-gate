@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createTestApp, type TestApp } from './helpers.js'
-import { signInEvm, signInSolana } from './signers.js'
+import { evmWallet, signInEvm, signInSolana } from './signers.js'
 
 let t: TestApp
 
@@ -8,7 +8,7 @@ beforeEach(async () => {
   t = await createTestApp()
 })
 afterEach(async () => {
-  await t.app.close()
+  await t.close()
 })
 
 describe('token gating', () => {
@@ -73,7 +73,36 @@ describe('token gating', () => {
     expect(granted.json().invite.url).toBe('https://t.me/+invite')
   })
 
-  it('lets admins edit rules and rejects invalid ones', async () => {
+  it('lets admins change a rule and keeps the content', async () => {
+    await t.close()
+    const admin = evmWallet()
+    t = await createTestApp({ ADMIN_ADDRESSES: [admin.address] })
+    const { cookie, address } = await signInEvm(t.app, admin)
+
+    const rule = { kind: 'native', chain: 'eip155:84532', minAmount: '0.5' }
+    const bad = await t.app.inject({
+      method: 'PATCH',
+      url: '/admin/gates/holders-lounge/rule',
+      payload: { rule: { kind: 'native', chain: 'eip155:84532', minAmount: 'lots' } },
+      headers: { cookie },
+    })
+    expect(bad.statusCode).toBe(400)
+
+    const saved = await t.app.inject({
+      method: 'PATCH',
+      url: '/admin/gates/holders-lounge/rule',
+      payload: { rule },
+      headers: { cookie },
+    })
+    expect(saved.statusCode).toBe(200)
+
+    t.balances.set('native', address, 10n ** 18n)
+    const check = await t.app.inject({ url: '/gates/holders-lounge', headers: { cookie } })
+    expect(check.json().passed).toBe(true)
+    expect(check.json().content.heading).toBe('Welcome to the Holders Lounge')
+  })
+
+  it('rejects rule edits from visitors', async () => {
     const response = await t.app.inject({
       method: 'PUT',
       url: '/admin/gates/holders-lounge',

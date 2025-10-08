@@ -34,11 +34,12 @@ const DISTRIBUTOR = '0x00000000000000000000000000000000000d1570' as const
 const PASS = '0x0000000000000000000000000000000000000a55' as const
 const TOKEN = '0x000000000000000000000000000000000000700c' as const
 
-export async function createTestDb(): Promise<Db> {
+export async function createTestDb(): Promise<{ db: Db; close: () => Promise<void> }> {
   const client = new PGlite()
   const db = drizzle(client, { schema })
   await migrate(db, { migrationsFolder })
-  return db as unknown as Db
+  // Each PGlite instance holds a large WASM heap, so tests must close it.
+  return { db: db as unknown as Db, close: () => client.close() }
 }
 
 export function testConfig(overrides: Partial<Config['env']> = {}): Config {
@@ -236,11 +237,12 @@ export interface TestApp {
   solana: FakeSolana
   balances: FakeBalances
   db: Db
+  close: () => Promise<void>
 }
 
 export async function createTestApp(overrides: Partial<Config['env']> = {}): Promise<TestApp> {
   const config = testConfig(overrides)
-  const db = await createTestDb()
+  const { db, close: closeDb } = await createTestDb()
   await ensureDemoData(config, new DrizzleCampaignRepository(db), new DrizzleGateRepository(db))
 
   const evm = new FakeEvm()
@@ -275,7 +277,12 @@ export async function createTestApp(overrides: Partial<Config['env']> = {}): Pro
   }
   const container = createContainer(config, db, infra, silentLogger)
   const app = await buildServer(container, { logger: false })
-  return { app, container, evm, sponsor, solana, balances, db }
+  const close = async () => {
+    container.publisher.stop()
+    await app.close()
+    await closeDb()
+  }
+  return { app, container, evm, sponsor, solana, balances, db, close }
 }
 
 export function cookieFrom(response: { headers: Record<string, unknown> }): string {

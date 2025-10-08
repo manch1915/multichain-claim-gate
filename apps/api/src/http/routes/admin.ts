@@ -28,6 +28,13 @@ export const adminRoutes =
       return campaigns.importWhitelist(id, csv)
     })
 
+    app.patch('/admin/gates/:id/rule', async (request) => {
+      await requireAdmin(auth, request)
+      const { id } = parse(gateParams, request.params)
+      const { rule } = parse(z.object({ rule: z.unknown() }), request.body)
+      return { gate: await gates.updateRule(id, rule) }
+    })
+
     app.put('/admin/gates/:id', async (request) => {
       await requireAdmin(auth, request)
       const { id } = parse(gateParams, request.params)
