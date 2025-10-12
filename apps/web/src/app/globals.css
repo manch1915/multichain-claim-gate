@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
+ * Palette borrowed from nautical charts: chart paper, navy ink, depth tints for shallow water and
+ * chart magenta, which charts reserve for lights and things you must not miss.
+ * Dark mode follows the ECDIS night palette used on ship bridges.
+ */
+:root {
+  --paper: #e9eff2;
+  --surface: #f7fafb;
+  --surface-sunk: #dfe8ed;
+  --ink: #0f2135;
+  --ink-soft: #3c4f63;
+  --muted: #5a6b7d;
+  --line: #c6d3dc;
+  --line-strong: #9fb3c1;
+  --shoal: #cfe3ee;
+  --shoal-deep: #9cc6dc;
+  --magenta: #c3166f;
+  --magenta-ink: #ffffff;
+  --magenta-soft: #f7dcea;
+  --go: #1c7c54;
+  --go-soft: #d5eee2;
+  --stop: #b42318;
+  --stop-soft: #fbe1de;
+  --wait: #9a5b00;
+  --wait-soft: #f8ead2;
+  --focus: #c3166f;
+  --contour: rgb(15 33 53 / 0.07);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --paper: #0b1622;
+  --surface: #10202f;
+  --surface-sunk: #0d1b28;
+  --ink: #dce6ee;
+  --ink-soft: #b7c6d3;
+  --muted: #8ea2b4;
+  --line: #22374a;
+  --line-strong: #34506a;
+  --shoal: #17324a;
+  --shoal-deep: #22506f;
+  --magenta: #ff5fa8;
+  --magenta-ink: #1a0a12;
+  --magenta-soft: #3a1328;
+  --go: #4cc38a;
+  --go-soft: #123527;
+  --stop: #ff7a6b;
+  --stop-soft: #3a1714;
+  --wait: #f2b552;
+  --wait-soft: #3a2a10;
+  --focus: #ff5fa8;
+  --contour: rgb(220 230 238 / 0.06);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunk: var(--surface-sunk);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-shoal: var(--shoal);
+  --color-shoal-deep: var(--shoal-deep);
+  --color-magenta: var(--magenta);
+  --color-magenta-ink: var(--magenta-ink);
+  --color-magenta-soft: var(--magenta-soft);
+  --color-go: var(--go);
+  --color-go-soft: var(--go-soft);
+  --color-stop: var(--stop);
+  --color-stop-soft: var(--stop-soft);
+  --color-wait: var(--wait);
+  --color-wait-soft: var(--wait-soft);
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --radius-panel: 14px;
+  --radius-control: 10px;
+  --radius-chip: 6px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--magenta);
+    color: var(--magenta-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  /* Wide setting of Archivo, the way charts letter their titles. */
+  .type-chart {
+    font-stretch: 118%;
+    font-weight: 640;
+    letter-spacing: -0.012em;
+    line-height: 1.04;
+  }
+  .type-heading {
+    font-stretch: 108%;
+    font-weight: 600;
+    letter-spacing: -0.006em;
+    line-height: 1.15;
+  }
+  /* Hydrographic features on charts are lettered in italic. */
+  .type-water {
+    font-style: italic;
+    font-stretch: 100%;
+  }
+  .nums {
+    font-variant-numeric: tabular-nums;
+  }
+  .contours {
+    background-image: url('/contours.svg');
+    background-size: 900px auto;
+    background-position: right -120px top -80px;
+    background-repeat: no-repeat;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
