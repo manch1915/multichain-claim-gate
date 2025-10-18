@@ -24,3 +24,4 @@ Thumbs.db
 .vscode/
 .idea/
 contracts/evm/deployments/31337.json
+deployments/local.json

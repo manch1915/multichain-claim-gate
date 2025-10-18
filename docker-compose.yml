@@ -1,0 +1,51 @@
+name: meridian
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: meridian
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-meridian}
+      POSTGRES_DB: meridian
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:5463:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U meridian']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://meridian:${POSTGRES_PASSWORD:-meridian}@db:5432/meridian
+      DEPLOYMENTS_FILE: /app/deployments/testnet.json
+    volumes:
+      - ./deployments:/app/deployments:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_REOWN_PROJECT_ID: ${NEXT_PUBLIC_REOWN_PROJECT_ID:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    environment:
+      API_INTERNAL_URL: http://api:4000
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  db-data:
