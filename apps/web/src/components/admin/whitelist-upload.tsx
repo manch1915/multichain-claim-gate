@@ -5,7 +5,7 @@ import { FileUp } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { ApiError } from '@/lib/api'
 import { api } from '@/lib/api'
-import { formatAmount, shortHash } from '@/lib/format'
+import { formatAmount, plural, shortHash } from '@/lib/format'
 import { DEMO_CAMPAIGN } from '@/lib/networks'
 import type { WhitelistPreview } from '@/lib/types'
 import { Button, InlineError, Panel } from '../ui'
@@ -120,8 +120,9 @@ export function WhitelistUpload({ canEdit }: { canEdit: boolean }) {
                 : null}
             </p>
             <p className="mt-1 text-ink-soft">
-              EVM: {result.totals.evm.count} wallets, {formatAmount(result.totals.evm.amount, 18)}{' '}
-              MRD. Solana: {result.totals.solana.count} wallets,{' '}
+              EVM: {plural(result.totals.evm.count, 'wallet', 'wallets')},{' '}
+              {formatAmount(result.totals.evm.amount, 18)} MRD. Solana:{' '}
+              {plural(result.totals.solana.count, 'wallet', 'wallets')},{' '}
               {formatAmount(result.totals.solana.amount, 6)} MRD.
             </p>
             {'roots' in result && result.roots ? (

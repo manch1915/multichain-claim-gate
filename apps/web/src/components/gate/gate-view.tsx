@@ -141,7 +141,7 @@ function MintPassButton() {
   }, [status, queryClient])
 
   if (status === 'confirmed') {
-    return <p className="text-sm text-go">Your Meridian Pass is minted. Checking access again…</p>
+    return <p className="text-sm text-go">Your Meridian Pass is minted and counted above.</p>
   }
   return (
     <>

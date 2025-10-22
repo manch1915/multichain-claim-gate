@@ -2,11 +2,18 @@ import { formatUnits } from 'viem'
 
 /** Base-unit string to a readable amount: grouped thousands, trailing zeros trimmed. */
 export function formatAmount(base: string | bigint, decimals: number, maxFraction = 4): string {
-  const value = formatUnits(typeof base === 'bigint' ? base : BigInt(base || '0'), decimals)
+  const raw = typeof base === 'bigint' ? base : BigInt(base || '0')
+  const value = formatUnits(raw, decimals)
   const [whole = '0', fraction = ''] = value.split('.')
+  const smallest = 10n ** BigInt(Math.max(decimals - maxFraction, 0))
+  if (raw > 0n && raw < smallest) return `< 0.${'0'.repeat(maxFraction - 1)}1`
   const grouped = Number(whole).toLocaleString('en-US')
   const trimmed = fraction.slice(0, maxFraction).replace(/0+$/, '')
   return trimmed ? `${grouped}.${trimmed}` : grouped
+}
+
+export function plural(count: number, one: string, many: string): string {
+  return `${count.toLocaleString('en-US')} ${count === 1 ? one : many}`
 }
 
 export function formatUsd(value: number): string {

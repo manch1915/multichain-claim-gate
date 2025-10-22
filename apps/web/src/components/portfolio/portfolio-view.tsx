@@ -91,11 +91,13 @@ function ChainSection({
               {visible.map((asset) => {
                 const amount = formatAmount(asset.balance, asset.decimals)
                 const price =
-                  asset.kind === 'native'
-                    ? prices[asset.symbol]
-                    : asset.symbol === 'USDC'
-                      ? 1
-                      : undefined
+                  chain.chain === 'eip155:31337'
+                    ? undefined
+                    : asset.kind === 'native'
+                      ? prices[asset.symbol]
+                      : asset.symbol === 'USDC'
+                        ? 1
+                        : undefined
                 const usd =
                   price !== undefined
                     ? (Number(asset.balance) / 10 ** asset.decimals) * price
@@ -115,7 +117,7 @@ function ChainSection({
                       ) : (
                         <>
                           {amount}
-                          {usd !== undefined && usd > 0 ? (
+                          {usd !== undefined && usd >= 0.01 ? (
                             <span className="block text-xs text-muted">
                               ≈ {formatUsd(usd)} at mainnet price
                             </span>
