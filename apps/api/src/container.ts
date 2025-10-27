@@ -1,5 +1,5 @@
 import { chains, publicChainKeys } from '@mcg/core'
-import { createKeyPairSignerFromBytes, createSolanaRpc, getBase58Encoder } from '@solana/kit'
+import { createKeyPairSignerFromBytes, createSolanaRpc } from '@solana/kit'
 import { getAddress } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import type { Config } from './config.js'
@@ -28,6 +28,7 @@ import { DirectSponsor, PimlicoSponsor } from './infra/evm/sponsor.js'
 import { ExplorerHistoryProvider } from './infra/http-clients/history.js'
 import { CoinGeckoPriceProvider } from './infra/http-clients/prices.js'
 import { BotApiTelegramInviter } from './infra/http-clients/telegram.js'
+import { parseSolanaSecret } from './infra/solana/keys.js'
 import { KitSolanaGateway } from './infra/solana/solana-gateway.js'
 import { MultichainSignatureVerifier } from './infra/siwx/verifier.js'
 import { AdminService } from './services/admin-service.js'
@@ -255,10 +256,4 @@ export function createContainer(
     publicOrigin: env.PUBLIC_ORIGIN,
     demoCampaignId: env.DEMO_CAMPAIGN_ID,
   }
-}
-
-function parseSolanaSecret(secret: string): Uint8Array {
-  const trimmed = secret.trim()
-  if (trimmed.startsWith('[')) return Uint8Array.from(JSON.parse(trimmed) as number[])
-  return new Uint8Array(getBase58Encoder().encode(trimmed))
 }

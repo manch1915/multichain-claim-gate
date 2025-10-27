@@ -13,6 +13,7 @@ import {
 const discriminator = (preimage: string) =>
   createHash('sha256').update(preimage).digest().subarray(0, 8)
 
+const INITIALIZE = discriminator('global:initialize')
 const CLAIM = discriminator('global:claim')
 const UPDATE_ROOT = discriminator('global:update_root')
 export const DISTRIBUTOR_ACCOUNT = discriminator('account:Distributor')
@@ -86,6 +87,38 @@ export async function claimInstruction(
       { address: SYSTEM_PROGRAM, role: AccountRole.READONLY },
     ],
     data: new Uint8Array(data),
+  }
+}
+
+export async function distributorAddress(
+  programId: Address,
+  mint: Address,
+  authority: Address,
+): Promise<Address> {
+  const [pda] = await getProgramDerivedAddress({
+    programAddress: programId,
+    seeds: [Buffer.from('distributor'), encoder.encode(mint), encoder.encode(authority)],
+  })
+  return pda
+}
+
+export function initializeInstruction(
+  accounts: DistributorAccounts,
+  authority: Address,
+  root: Uint8Array,
+): Instruction {
+  return {
+    programAddress: accounts.programId,
+    accounts: [
+      { address: authority, role: AccountRole.WRITABLE_SIGNER },
+      { address: accounts.mint, role: AccountRole.READONLY },
+      { address: accounts.distributor, role: AccountRole.WRITABLE },
+      { address: accounts.vault, role: AccountRole.WRITABLE },
+      { address: TOKEN_PROGRAM, role: AccountRole.READONLY },
+      { address: ASSOCIATED_TOKEN_PROGRAM, role: AccountRole.READONLY },
+      { address: SYSTEM_PROGRAM, role: AccountRole.READONLY },
+    ],
+    data: new Uint8Array(Buffer.concat([INITIALIZE, Buffer.from(root)])),
   }
 }
 
