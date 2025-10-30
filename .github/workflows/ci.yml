@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: Lint, typecheck and test the app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build the web app
+        run: npm run build -w @mcg/web
+
+  evm:
+    name: EVM contracts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts/evm
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: forge fmt --check
+      - run: forge build --sizes
+      - run: forge test -vv
+        env:
+          FOUNDRY_PROFILE: ci
+
+  solana:
+    name: Solana program
+    runs-on: ubuntu-latest
+    container: solanafoundation/anchor:v1.0.2
+    defaults:
+      run:
+        working-directory: contracts/solana
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            contracts/solana/target
+          key: anchor-${{ hashFiles('contracts/solana/Cargo.lock') }}
+          restore-keys: anchor-
+      - run: anchor build
+      - run: cargo test --package merkle-distributor
