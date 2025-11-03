@@ -9,6 +9,22 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./chains": {
+      "types": "./dist/chains.d.ts",
+      "default": "./dist/chains.js"
+    },
+    "./format": {
+      "types": "./dist/format.d.ts",
+      "default": "./dist/format.js"
+    },
+    "./describe": {
+      "types": "./dist/gating/describe.d.ts",
+      "default": "./dist/gating/describe.js"
+    },
+    "./schema": {
+      "types": "./dist/gating/rules.d.ts",
+      "default": "./dist/gating/rules.js"
     }
   },
   "files": [

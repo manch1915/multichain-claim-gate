@@ -1,6 +1,7 @@
 import { formatUnits, parseUnits } from 'viem'
 import { chainByCaip2 } from '../chains.js'
-import { isGroup, type Condition, type Rule } from './rules.js'
+import { describeCondition, isGroup } from './describe.js'
+import type { Condition, Rule } from './rules.js'
 
 /**
  * Returns the holder's balance for a condition in base units (or a count for NFTs), or `null`
@@ -70,20 +71,5 @@ export function threshold(condition: Condition): { required: bigint; decimals: n
       const decimals = chainByCaip2(condition.chain)?.nativeDecimals ?? 18
       return { required: parseUnits(condition.minAmount, decimals), decimals }
     }
-  }
-}
-
-export function describeCondition(condition: Condition): string {
-  const chain = chainByCaip2(condition.chain)?.shortName ?? condition.chain
-  switch (condition.kind) {
-    case 'erc721':
-      return condition.minCount === 1
-        ? `Hold a ${condition.name} on ${chain}`
-        : `Hold ${condition.minCount} ${condition.name} on ${chain}`
-    case 'erc20':
-    case 'spl':
-      return `Hold ${condition.minAmount} ${condition.symbol} on ${chain}`
-    case 'native':
-      return `Hold ${condition.minAmount} ${chainByCaip2(condition.chain)?.nativeSymbol ?? 'native token'} on ${chain}`
   }
 }

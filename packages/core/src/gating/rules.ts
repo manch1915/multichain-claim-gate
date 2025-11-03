@@ -67,16 +67,3 @@ export const rule: z.ZodType<Rule> = z.lazy(() =>
     }),
   ]),
 )
-
-export function isGroup(value: Rule): value is RuleGroup {
-  return value.kind === 'all' || value.kind === 'any'
-}
-
-/** Walks the tree and returns every leaf condition, used to prefetch balances in one batch. */
-export function collectConditions(value: Rule): Condition[] {
-  return isGroup(value) ? value.rules.flatMap(collectConditions) : [value]
-}
-
-export function ruleDepth(value: Rule): number {
-  return isGroup(value) ? 1 + Math.max(...value.rules.map(ruleDepth)) : 0
-}
