@@ -1,6 +1,6 @@
 'use client'
 
-import { collectConditions } from '@mcg/core'
+import { collectConditions } from '@mcg/core/describe'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ExternalLink, LockKeyhole, Send, Ticket } from 'lucide-react'
 import { motion } from 'motion/react'

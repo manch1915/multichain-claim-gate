@@ -1,6 +1,6 @@
 'use client'
 
-import { shortAddress } from '@mcg/core'
+import { shortAddress } from '@mcg/core/format'
 import { Check, Copy, LoaderCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useState, type ButtonHTMLAttributes, type ComponentProps, type ReactNode } from 'react'

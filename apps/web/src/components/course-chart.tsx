@@ -1,7 +1,6 @@
 'use client'
 
 import { Check } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
 import { waypointState, type WaypointState } from '@/hooks/use-route-progress'
 
 export interface Waypoint {
@@ -29,8 +28,6 @@ function curve({ from, to }: { from: Point; to: Point }) {
 }
 
 export function CourseChart({ waypoints, current }: { waypoints: Waypoint[]; current: number }) {
-  const reduceMotion = useReducedMotion()
-
   return (
     <>
       <figure className="relative hidden md:block" aria-label="Demo route">
@@ -48,15 +45,15 @@ export function CourseChart({ waypoints, current }: { waypoints: Waypoint[]; cur
                   strokeDasharray="7 7"
                 />
                 {travelled ? (
-                  <motion.path
+                  <path
                     d={curve(leg)}
+                    pathLength={1}
                     fill="none"
                     stroke="var(--magenta)"
                     strokeWidth="3"
                     strokeLinecap="round"
-                    initial={reduceMotion ? false : { pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.7, delay: 0.25 + i * 0.45, ease: [0.4, 0, 0.2, 1] }}
+                    className="draw-path"
+                    style={{ animationDelay: `${0.25 + i * 0.45}s` }}
                   />
                 ) : null}
               </g>

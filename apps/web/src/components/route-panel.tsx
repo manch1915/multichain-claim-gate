@@ -1,9 +1,8 @@
 'use client'
 
-import { useAppKit } from '@reown/appkit/react'
 import { ExternalLink } from 'lucide-react'
 import { useRouteProgress } from '@/hooks/use-route-progress'
-import { appKitConfigured } from '@/lib/appkit'
+import { openWalletModal, walletsEnabled, warmWallet } from '@/lib/wallet'
 import { faucets } from '@/lib/networks'
 import { CourseChart, type Waypoint } from './course-chart'
 import { Button, ButtonLink, Panel } from './ui'
@@ -117,7 +116,7 @@ function ConnectAction({
   label: string
   variant?: 'primary' | 'secondary'
 }) {
-  if (!appKitConfigured) {
+  if (!walletsEnabled) {
     return (
       <p className="max-w-56 text-sm text-muted">
         Wallet connections are switched off on this build. Set a Reown project id to enable them.
@@ -128,9 +127,13 @@ function ConnectAction({
 }
 
 function OpenModalButton({ label, variant }: { label: string; variant: 'primary' | 'secondary' }) {
-  const { open } = useAppKit()
   return (
-    <Button variant={variant} onClick={() => open()}>
+    <Button
+      variant={variant}
+      onPointerEnter={warmWallet}
+      onFocus={warmWallet}
+      onClick={() => void openWalletModal()}
+    >
       {label}
     </Button>
   )

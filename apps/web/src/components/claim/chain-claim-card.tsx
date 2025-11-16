@@ -1,6 +1,6 @@
 'use client'
 
-import { chainByCaip2 } from '@mcg/core'
+import { chainByCaip2 } from '@mcg/core/chains'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ExternalLink, Wallet } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'

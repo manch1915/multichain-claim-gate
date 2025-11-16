@@ -1,6 +1,7 @@
 'use client'
 
-import { chainByCaip2, shortAddress } from '@mcg/core'
+import { chainByCaip2 } from '@mcg/core/chains'
+import { shortAddress } from '@mcg/core/format'
 import { useQuery } from '@tanstack/react-query'
 import { ExternalLink } from 'lucide-react'
 import type { ApiError } from '@/lib/api'

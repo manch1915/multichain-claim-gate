@@ -1,6 +1,6 @@
 'use client'
 
-import { rule as ruleSchema } from '@mcg/core'
+import { rule as ruleSchema } from '@mcg/core/schema'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useId, useState } from 'react'

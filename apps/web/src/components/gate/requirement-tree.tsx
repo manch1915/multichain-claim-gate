@@ -1,4 +1,5 @@
-import { chainByCaip2, type EvaluationResult } from '@mcg/core'
+import type { EvaluationResult } from '@mcg/core'
+import { chainByCaip2 } from '@mcg/core/chains'
 import { Check, Minus, X } from 'lucide-react'
 import { ChainMark } from '../ui'
 

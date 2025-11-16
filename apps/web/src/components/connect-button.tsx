@@ -1,14 +1,13 @@
 'use client'
 
-import { useAppKit } from '@reown/appkit/react'
 import { Wallet } from 'lucide-react'
-import { shortAddress } from '@mcg/core'
+import { shortAddress } from '@mcg/core/format'
 import { useSession } from '@/hooks/use-session'
-import { appKitConfigured } from '@/lib/appkit'
+import { openWalletModal, walletsEnabled, warmWallet } from '@/lib/wallet'
 import { Button } from './ui'
 
 export function ConnectButton() {
-  if (!appKitConfigured) {
+  if (!walletsEnabled) {
     return (
       <Button
         variant="secondary"
@@ -24,13 +23,18 @@ export function ConnectButton() {
 }
 
 function ConnectButtonInner() {
-  const { open } = useAppKit()
   const session = useSession()
   const accounts = session.data?.accounts ?? []
 
   if (accounts.length === 0) {
     return (
-      <Button size="sm" icon={<Wallet className="size-4" aria-hidden />} onClick={() => open()}>
+      <Button
+        size="sm"
+        icon={<Wallet className="size-4" aria-hidden />}
+        onPointerEnter={warmWallet}
+        onFocus={warmWallet}
+        onClick={() => void openWalletModal()}
+      >
         Connect wallet
       </Button>
     )
@@ -39,7 +43,9 @@ function ConnectButtonInner() {
   return (
     <button
       type="button"
-      onClick={() => open({ view: 'Account' })}
+      onPointerEnter={warmWallet}
+      onFocus={warmWallet}
+      onClick={() => void openWalletModal('Account')}
       className="flex h-9 items-center gap-2 rounded-control border border-line-strong bg-surface pr-3 pl-2 text-sm hover:border-ink"
       aria-label={`Signed in as ${accounts.map((a) => a.address).join(' and ')}. Open wallet menu`}
     >

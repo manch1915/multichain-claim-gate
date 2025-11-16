@@ -1,6 +1,6 @@
 'use client'
 
-import { chainByCaip2, chains } from '@mcg/core'
+import { chainByCaip2, chains } from '@mcg/core/chains'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListPlus } from 'lucide-react'
 import { useCampaign, useEligibility } from '@/hooks/use-campaign'

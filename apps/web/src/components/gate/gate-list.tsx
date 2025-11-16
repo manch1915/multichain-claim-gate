@@ -1,6 +1,6 @@
 'use client'
 
-import { collectConditions, describeCondition } from '@mcg/core'
+import { collectConditions, describeCondition } from '@mcg/core/describe'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'

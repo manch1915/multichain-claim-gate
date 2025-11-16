@@ -1,4 +1,5 @@
 import { Fuel, PenLine, Sheet, ShieldCheck } from 'lucide-react'
+import { ContourLines } from '@/components/contour-lines'
 import { RoutePanel } from '@/components/route-panel'
 
 const legend = [
@@ -28,10 +29,11 @@ export default function HomePage() {
   return (
     <>
       <section
-        className="contours -mx-4 px-4 pt-12 pb-10 sm:-mx-6 sm:px-6 sm:pt-16"
+        className="relative -mx-4 overflow-hidden px-4 pt-12 pb-10 sm:-mx-6 sm:px-6 sm:pt-16"
         aria-labelledby="hero-title"
       >
-        <div className="max-w-3xl">
+        <ContourLines className="-top-20 -right-32 w-[900px] max-w-none" />
+        <div className="relative max-w-3xl">
           <h1 id="hero-title" className="type-chart text-[2.1rem] text-ink sm:text-[3.1rem]">
             Claim MRD on three testnets, then walk into the holders lounge.
           </h1>
@@ -40,7 +42,9 @@ export default function HomePage() {
             once, the backend pays the gas, and the lounge checks your balances before it opens.
           </p>
         </div>
-        <RoutePanel />
+        <div className="relative">
+          <RoutePanel />
+        </div>
       </section>
 
       <section aria-labelledby="legend-title" className="mt-6 border-t border-line pt-10">
