@@ -1,0 +1,74 @@
+{
+  "root": "1c14103a8e2f688d1677a7a6cecff61991766821a1c14542d2efb7b956b65c97",
+  "claims": [
+    {
+      "seed": 1,
+      "claimant": "AKnL4NNf3DGWZJS6cPknBuEGnVsV4A4m5tgebLHaRSZ9",
+      "amount": 1500000,
+      "proof": [
+        "802a37be62d07ceead8080713a09798ab5be47ed06b270ffaa1713521d7d4ae3",
+        "ebadf988a8e45f977aad41b436579267258c1cd06e690a7da013ab3c5bd4c72f",
+        "ae1f6dede6a179f4329d90aa72a0cfbc46654e0034923c1b08fd75709ce66eb1"
+      ]
+    },
+    {
+      "seed": 2,
+      "claimant": "9hSR6S7WPtxmTojgo6GG3k4yDPecgJY292j7xrsUGWBu",
+      "amount": 3000000,
+      "proof": [
+        "24e7fa30141cd7bbf0b55c9707cf962dcb65d89ce1008dfc58bdc23649edc89a",
+        "138b7c0c59aa1bdcec19d19b42e8f1fdbd02d457c30c967f282b663093f2abc7",
+        "20a717783e2b194a9bc4575f5a6f8157b9ed9a2ecce2f8bf71bb44b52b81c4a4"
+      ]
+    },
+    {
+      "seed": 3,
+      "claimant": "GyGKxMyg1p9SsHfm15MkNUu1u9TN2JtTspcdmrtGUdse",
+      "amount": 4500000,
+      "proof": [
+        "1bf2fa6716329624f99895c16550b65344cc30e7fff37f4a22f09148186b3a4f",
+        "138b7c0c59aa1bdcec19d19b42e8f1fdbd02d457c30c967f282b663093f2abc7",
+        "20a717783e2b194a9bc4575f5a6f8157b9ed9a2ecce2f8bf71bb44b52b81c4a4"
+      ]
+    },
+    {
+      "seed": 4,
+      "claimant": "EdmxWPmx2WH6WgFfTdu9xfkYf3k1g5wD1zccTVySEEh1",
+      "amount": 6000000,
+      "proof": [
+        "9c99f169a62dcba17f8c63bbcad08cd1e9fd9cf809f24a64337431cc26bfeec5",
+        "ebadf988a8e45f977aad41b436579267258c1cd06e690a7da013ab3c5bd4c72f",
+        "ae1f6dede6a179f4329d90aa72a0cfbc46654e0034923c1b08fd75709ce66eb1"
+      ]
+    },
+    {
+      "seed": 5,
+      "claimant": "8SFqwqnq4whPhs8icwHA2hQg3hUoN1qrCLK1SBx3WKwe",
+      "amount": 7500000,
+      "proof": [
+        "425fbd2979f47abd263180cdc1ade79f2165964123be8923b01fdb76d4fd3ed7",
+        "d25e7b6d9b64d4b5f2df1573c2c2208f12808c494a2859f252a19b62f53c682a",
+        "20a717783e2b194a9bc4575f5a6f8157b9ed9a2ecce2f8bf71bb44b52b81c4a4"
+      ]
+    },
+    {
+      "seed": 6,
+      "claimant": "AKkzLhjhyFtM9j7WAhbaqYpFe49cXeJBg2kzLRC2PnNa",
+      "amount": 9000000,
+      "proof": [
+        "4cb4f6cc622112e52c0fa2609e8b2818ed61f756ec6fc3e998f6b97d39a60db2",
+        "d25e7b6d9b64d4b5f2df1573c2c2208f12808c494a2859f252a19b62f53c682a",
+        "20a717783e2b194a9bc4575f5a6f8157b9ed9a2ecce2f8bf71bb44b52b81c4a4"
+      ]
+    },
+    {
+      "seed": 7,
+      "claimant": "GmaDrppBC7P5ARKV8g3djiwP89vz1jLK23V2GBjuAEGB",
+      "amount": 10500000,
+      "proof": [
+        "046898ff8f1897d7e741ea24a08c6322b19e2144a83ddee623366bc6635877bf",
+        "ae1f6dede6a179f4329d90aa72a0cfbc46654e0034923c1b08fd75709ce66eb1"
+      ]
+    }
+  ]
+}
