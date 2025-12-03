@@ -60,5 +60,6 @@ jobs:
             contracts/solana/target
           key: anchor-${{ hashFiles('contracts/solana/Cargo.lock') }}
           restore-keys: anchor-
+      - run: cargo fmt --all -- --check
       - run: anchor build
       - run: cargo test --package merkle-distributor
