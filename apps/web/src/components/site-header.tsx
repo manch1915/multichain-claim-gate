@@ -35,7 +35,7 @@ export function SiteHeader() {
   const { theme, toggle } = useTheme()
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-line bg-paper">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
         <Link
           href="/"

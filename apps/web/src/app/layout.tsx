@@ -18,6 +18,8 @@ const plexMono = IBM_Plex_Mono({
   weight: ['400', '500'],
   variable: '--font-plex-mono',
   display: 'swap',
+  // Only addresses and hashes use it, so it should not compete with the headline font.
+  preload: false,
 })
 
 export const metadata: Metadata = {

@@ -51,20 +51,19 @@ export default function HomePage() {
         <h2 id="legend-title" className="type-heading text-xl">
           How the route works
         </h2>
-        <dl className="mt-6 grid gap-x-10 gap-y-8 sm:grid-cols-2">
+        <ul className="mt-6 grid gap-x-10 gap-y-8 sm:grid-cols-2">
           {legend.map(({ icon: Icon, title, body }) => (
-            <div key={title} className="flex gap-4">
-              <dt className="sr-only">{title}</dt>
+            <li key={title} className="flex gap-4">
               <span className="mt-0.5 grid size-10 shrink-0 place-items-center rounded-full border border-line-strong text-ink">
                 <Icon className="size-[18px]" aria-hidden />
               </span>
-              <dd>
-                <p className="font-semibold text-ink">{title}</p>
+              <div>
+                <h3 className="font-semibold text-ink">{title}</h3>
                 <p className="mt-1 max-w-prose text-[0.95rem] text-ink-soft">{body}</p>
-              </dd>
-            </div>
+              </div>
+            </li>
           ))}
-        </dl>
+        </ul>
       </section>
     </>
   )
