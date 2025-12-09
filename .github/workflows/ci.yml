@@ -27,6 +27,28 @@ jobs:
       - name: Build the web app
         run: npm run build -w @mcg/web
 
+  e2e:
+    name: End to end on Anvil
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: npm ci
+      - run: npm run build -w @mcg/core
+      - run: forge build
+        working-directory: contracts/evm
+      - name: Start Anvil
+        run: anvil --hardfork prague --silent &
+      - run: npm run test:e2e -w @mcg/api
+        env:
+          ANVIL_RPC_URL: http://127.0.0.1:8545
+
   evm:
     name: EVM contracts
     runs-on: ubuntu-latest
