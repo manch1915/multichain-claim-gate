@@ -70,6 +70,11 @@ jobs:
     name: Solana program
     runs-on: ubuntu-latest
     container: solanafoundation/anchor:v1.0.2
+    # GitHub points HOME at its own directory; the toolchain in the image lives under /root.
+    env:
+      HOME: /root
+      RUSTUP_HOME: /root/.rustup
+      CARGO_HOME: /root/.cargo
     defaults:
       run:
         working-directory: contracts/solana
@@ -78,7 +83,7 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: |
-            ~/.cargo/registry
+            /root/.cargo/registry
             contracts/solana/target
           key: anchor-${{ hashFiles('contracts/solana/Cargo.lock') }}
           restore-keys: anchor-
