@@ -88,5 +88,6 @@ jobs:
           key: anchor-${{ hashFiles('contracts/solana/Cargo.lock') }}
           restore-keys: anchor-
       - run: cargo fmt --all -- --check
-      - run: anchor build
+      # The deploy keypair is not in the repository, so CI builds against declare_id only.
+      - run: anchor build --ignore-keys
       - run: cargo test --package merkle-distributor

@@ -91,7 +91,7 @@ docker compose up --build       # web on http://localhost:3000
 
 1. Put testnet-only keys in `.env`: `DEPLOYER_PRIVATE_KEY` (holds a little Sepolia and Base Sepolia ETH), `SPONSOR_PRIVATE_KEY` (owns the contracts, needs no ETH with Pimlico), `ETHERSCAN_API_KEY`, `PIMLICO_API_KEY`.
 2. EVM: `contracts/evm/script/deploy.sh` deploys to both networks, verifies on Etherscan (Sepolia) and Blockscout (Base Sepolia, Basescan's API is paid for that network) and writes `deployments/testnet.json`.
-3. Solana: build with `anchor build`, run `contracts/solana/deploy-devnet.sh` with `AUTHORITY_KEYPAIR` set, then `npx tsx --env-file=../../.env scripts/solana-setup.ts <programId>` from `apps/api` to create the MRD mint, initialise the distributor and fund its vault.
+3. Solana: build with `anchor build` (CI uses `--ignore-keys` because the program keypair is not in the repository), run `contracts/solana/deploy-devnet.sh` with `AUTHORITY_KEYPAIR` set, then `npx tsx --env-file=../../.env scripts/solana-setup.ts <programId>` from `apps/api` to create the MRD mint, initialise the distributor and fund its vault.
 
 Keys never live in the repository. `.env` and keypair files are ignored by git.
 
