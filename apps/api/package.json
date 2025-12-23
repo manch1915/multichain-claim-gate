@@ -29,6 +29,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",
     "@solana-program/system": "0.16.0",
+    "@solana/web3.js": "1.98.4",
     "@types/node": "22.20.5",
     "drizzle-kit": "0.31.11",
     "tsx": "4.23.15"

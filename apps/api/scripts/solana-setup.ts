@@ -43,7 +43,9 @@ const secret = process.env.SOLANA_FEE_PAYER_SECRET
 if (!secret) throw new Error('SOLANA_FEE_PAYER_SECRET is not set')
 
 const rpc = createSolanaRpc(rpcUrl)
-const rpcSubscriptions = createSolanaRpcSubscriptions(rpcUrl.replace(/^http/, 'ws'))
+// Public clusters serve websockets on the RPC host; a local validator uses the next port up.
+const wsUrl = process.env.SOLANA_WS_URL ?? rpcUrl.replace(/^http/, 'ws')
+const rpcSubscriptions = createSolanaRpcSubscriptions(wsUrl)
 const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions })
 
 async function send(payer: KeyPairSigner, instructions: Instruction[]) {

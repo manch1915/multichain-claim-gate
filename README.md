@@ -108,10 +108,12 @@ Keys never live in the repository. `.env` and keypair files are ignored by git.
 
 ```bash
 npm test                                      # core and API (Vitest, Postgres via PGlite)
-npm run test:e2e -w @mcg/api                  # full flow against a running Anvil node
+npm run test:e2e -w @mcg/api                  # full flow against a running Anvil node and, if configured, a local Solana validator
 cd contracts/evm && forge test                # unit, fuzz and cross-check against backend proofs
 cd contracts/solana && cargo test             # LiteSVM, same fixtures as the backend
 ```
+
+The Solana end-to-end test needs `solana-test-validator` with the program deployed and `scripts/solana-setup.ts` run against it, then `SOLANA_E2E_DEPLOYMENTS`, `SOLANA_E2E_RPC_URL` and `SOLANA_E2E_FEE_PAYER` set. It signs the prepared transaction with `@solana/web3.js`, the same way the AppKit adapter hands it to a wallet. In Docker the validator needs `--security-opt seccomp=unconfined` (it uses io_uring) and `--bind-address` set to the container IP.
 
 The Merkle trees are checked across all three implementations: `packages/core` writes fixtures, and both the Foundry and the Rust suites claim with the exact proofs the backend produces.
 
