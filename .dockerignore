@@ -2,10 +2,10 @@
 **/.next
 **/dist
 **/coverage
+**/.env
+**/.env.*
+!**/.env.example
 .git
-.env
-.env.*
-!.env.example
 contracts
 docs
-deployments/*.local.json
+deployments/local.json

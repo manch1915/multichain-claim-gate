@@ -25,6 +25,8 @@ services:
     environment:
       DATABASE_URL: postgres://meridian:${POSTGRES_PASSWORD:-meridian}@db:5432/meridian
       DEPLOYMENTS_FILE: /app/deployments/testnet.json
+      HOST: 0.0.0.0
+      PORT: 4000
     volumes:
       - ./deployments:/app/deployments:ro
     depends_on:
@@ -39,10 +41,9 @@ services:
       args:
         NEXT_PUBLIC_REOWN_PROJECT_ID: ${NEXT_PUBLIC_REOWN_PROJECT_ID:-}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
-    environment:
-      API_INTERNAL_URL: http://api:4000
+        API_INTERNAL_URL: http://api:4000
     ports:
-      - '127.0.0.1:3000:3000'
+      - '127.0.0.1:${WEB_PORT:-3000}:3000'
     depends_on:
       - api
     restart: unless-stopped
