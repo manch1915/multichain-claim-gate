@@ -1,0 +1,23 @@
+# Production override for a host where a shared Caddy container proxies several projects.
+# Nothing is published on the host; Caddy reaches the web app through the shared network.
+services:
+  db:
+    ports: !reset []
+    restart: unless-stopped
+
+  api:
+    environment:
+      DATABASE_URL: postgres://meridian:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@db:5432/meridian
+
+  web:
+    ports: !reset []
+    networks:
+      default: {}
+      proxy:
+        # A unique alias, so it cannot collide with other projects on the same network.
+        aliases: [meridian-web]
+
+networks:
+  proxy:
+    name: ${PROXY_NETWORK:-infra_default}
+    external: true

@@ -1,0 +1,9 @@
+# Append to the shared Caddyfile once the DNS record points at the server.
+claim.example.com {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	reverse_proxy meridian-web:3000
+}

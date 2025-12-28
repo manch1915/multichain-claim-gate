@@ -95,6 +95,8 @@ docker compose up --build       # web on http://localhost:3000
 
 Keys never live in the repository. `.env` and keypair files are ignored by git.
 
+Running the demo behind a shared Caddy on a VPS is described in [docs/deploy.md](docs/deploy.md).
+
 ## Security notes
 
 - Sign-in messages are built and stored by the server. A nonce is consumed by a single conditional `UPDATE`, so a replayed or edited message is rejected.
@@ -103,6 +105,7 @@ Keys never live in the repository. `.env` and keypair files are ignored by git.
 - Upstream errors are stripped of URLs before they are stored or shown, because RPC and bundler URLs can carry API keys.
 - Gated content is only serialised into a response after the rule passes for the caller's wallets.
 - Rate limits are keyed by client IP, trusting only private-network proxy hops.
+- `npm audit` reports advisories in `bigint-buffer` and `stream-json`. Both come from the `@solana/web3.js` v1 tree that the AppKit Solana adapter depends on. In this app web3.js only deserializes transactions built by our own backend, and the API uses it in tests only, so neither code path handles untrusted input. They go away once the adapter moves to `@solana/kit`.
 
 ## Tests
 
