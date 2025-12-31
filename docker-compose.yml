@@ -29,6 +29,10 @@ services:
       PORT: 4000
     volumes:
       - ./deployments:/app/deployments:ro
+    networks:
+      default:
+        # Unique name: the web container also joins a shared proxy network in production.
+        aliases: [meridian-api]
     depends_on:
       db:
         condition: service_healthy
@@ -41,7 +45,7 @@ services:
       args:
         NEXT_PUBLIC_REOWN_PROJECT_ID: ${NEXT_PUBLIC_REOWN_PROJECT_ID:-}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
-        API_INTERNAL_URL: http://api:4000
+        API_INTERNAL_URL: http://meridian-api:4000
     ports:
       - '127.0.0.1:${WEB_PORT:-3000}:3000'
     depends_on:

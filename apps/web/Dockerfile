@@ -11,7 +11,7 @@ COPY apps/web apps/web
 ARG NEXT_PUBLIC_REOWN_PROJECT_ID
 ARG NEXT_PUBLIC_SITE_URL
 # Rewrites are resolved at build time, so the API address is baked into the build.
-ARG API_INTERNAL_URL=http://api:4000
+ARG API_INTERNAL_URL=http://meridian-api:4000
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build -w @mcg/core && npm run build -w @mcg/web
 
