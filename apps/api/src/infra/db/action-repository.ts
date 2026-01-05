@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, inArray, isNull, sql } from 'drizzle-orm'
 import type { ActionStatus, SponsoredAction } from '../../domain/models.js'
 import type {
   ActionRepository,
@@ -109,8 +109,8 @@ export class DrizzlePreparedTransactionRepository implements PreparedTransaction
         and(
           eq(preparedTransactions.id, id),
           eq(preparedTransactions.sessionId, sessionId),
-          sql`${preparedTransactions.usedAt} is null`,
-          sql`${preparedTransactions.expiresAt} > ${now}`,
+          isNull(preparedTransactions.usedAt),
+          gt(preparedTransactions.expiresAt, now),
         ),
       )
       .returning()

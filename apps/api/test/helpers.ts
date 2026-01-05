@@ -1,7 +1,11 @@
 import { PGlite } from '@electric-sql/pglite'
 import { chains, verifySolanaProof } from '@mcg/core'
+import { randomUUID } from 'node:crypto'
 import { drizzle } from 'drizzle-orm/pglite'
 import { migrate } from 'drizzle-orm/pglite/migrator'
+import { drizzle as drizzlePostgres } from 'drizzle-orm/postgres-js'
+import { migrate as migratePostgres } from 'drizzle-orm/postgres-js/migrator'
+import postgres from 'postgres'
 import { decodeFunctionData, type Hex } from 'viem'
 import type { FastifyInstance } from 'fastify'
 import { ensureDemoData } from '../src/bootstrap.js'
@@ -34,7 +38,32 @@ const DISTRIBUTOR = '0x00000000000000000000000000000000000d1570' as const
 const PASS = '0x0000000000000000000000000000000000000a55' as const
 const TOKEN = '0x000000000000000000000000000000000000700c' as const
 
+/**
+ * In-memory PGlite by default. With TEST_DATABASE_URL set, each call gets its own database in a
+ * real Postgres through postgres-js, which catches driver differences PGlite hides (CI runs both).
+ */
 export async function createTestDb(): Promise<{ db: Db; close: () => Promise<void> }> {
+  const url = process.env.TEST_DATABASE_URL
+  if (url) {
+    // A database per test app: the generated migrations reference the public schema explicitly.
+    const name = `test_${randomUUID().replace(/-/g, '')}`
+    const admin = postgres(url, { max: 1, onnotice: () => undefined })
+    await admin.unsafe(`create database "${name}"`)
+    const target = new URL(url)
+    target.pathname = `/${name}`
+    const client = postgres(target.toString(), { max: 4, onnotice: () => undefined })
+    const db = drizzlePostgres(client, { schema })
+    await migratePostgres(db, { migrationsFolder })
+    return {
+      db: db as unknown as Db,
+      close: async () => {
+        await client.end({ timeout: 5 })
+        await admin.unsafe(`drop database "${name}" with (force)`)
+        await admin.end({ timeout: 5 })
+      },
+    }
+  }
+
   const client = new PGlite()
   const db = drizzle(client, { schema })
   await migrate(db, { migrationsFolder })
