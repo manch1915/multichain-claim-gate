@@ -141,7 +141,7 @@ export class KitSolanaGateway implements SolanaGateway {
         })
         .send()
     } catch (error) {
-      throw new AppError('chain_error', simulationMessage(error))
+      throw new AppError('chain_error', describeSolanaFailure(error))
     }
   }
 
@@ -218,12 +218,21 @@ export class KitSolanaGateway implements SolanaGateway {
   }
 }
 
-function simulationMessage(error: unknown): string {
-  const text =
-    error instanceof Error ? `${error.message} ${JSON.stringify(error.cause ?? '')}` : String(error)
-  if (text.includes('NothingToClaim')) return 'This wallet already claimed its allocation'
-  if (text.includes('InvalidProof'))
-    return 'The proof does not match the current root. Refresh and try again.'
+// Anchor numbers the program's error enum from 6000 in declaration order (see programs/.../error.rs).
+const PROGRAM_ERRORS: Record<number, string> = {
+  6000: 'The airdrop list changed after this claim was prepared. Start the claim again.',
+  6001: 'This wallet already claimed its allocation',
+  6002: 'Claims are paused for now',
+}
+
+export function describeSolanaFailure(error: unknown): string {
+  const failure = error as {
+    context?: { logs?: string[] }
+    cause?: { context?: { code?: number } }
+  }
+  const code = failure.cause?.context?.code
+  if (code !== undefined && PROGRAM_ERRORS[code]) return PROGRAM_ERRORS[code]
+  const text = `${error instanceof Error ? error.message : String(error)} ${(failure.context?.logs ?? []).join(' ')}`
   if (text.includes('Blockhash not found') || text.includes('BlockhashNotFound')) {
     return 'The transaction expired before it was sent. Try again.'
   }
