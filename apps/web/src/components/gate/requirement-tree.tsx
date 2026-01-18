@@ -15,11 +15,13 @@ function Node({ result, depth }: { result: EvaluationResult; depth: number }) {
   if (result.type === 'group') {
     return (
       <div className={depth > 0 ? 'mt-2' : ''}>
-        <p className="flex items-center gap-2 font-medium">
+        <p className="flex items-start gap-2 font-medium">
           <StatusIcon passed={result.passed} />
-          {result.label}
-          <span className="text-sm font-normal text-muted">
-            {result.kind === 'all' ? 'every item must hold' : 'one item is enough'}
+          <span>
+            {result.label}{' '}
+            <span className="text-sm font-normal text-muted">
+              {result.kind === 'all' ? 'every item must hold' : 'one item is enough'}
+            </span>
           </span>
         </p>
         <ul className="mt-2 ml-[11px] grid gap-2 border-l border-line pl-5">

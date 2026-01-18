@@ -262,18 +262,18 @@ function ProofDetails({ chain, enabled }: { chain: string; enabled: boolean }) {
           ) : proof.isLoading ? (
             <p className="text-muted">Loading the proof…</p>
           ) : proof.data ? (
-            <ol className="grid gap-1 font-mono">
+            <ol className="grid grid-cols-[minmax(0,1fr)] gap-1 font-mono">
               {proof.data.proof.map((node, i) => (
-                <li key={node} className="flex gap-2 text-ink-soft">
+                <li key={node} className="flex min-w-0 gap-2 text-ink-soft">
                   <span className="w-5 shrink-0 text-right text-muted">{i + 1}</span>
-                  <span className="truncate" title={node}>
+                  <span className="min-w-0 truncate" title={node}>
                     {node}
                   </span>
                 </li>
               ))}
-              <li className="mt-1 flex gap-2 text-ink">
+              <li className="mt-1 flex min-w-0 gap-2 text-ink">
                 <span className="w-5 shrink-0 text-right text-magenta">R</span>
-                <span className="truncate" title={proof.data.root}>
+                <span className="min-w-0 truncate" title={proof.data.root}>
                   {proof.data.root}
                 </span>
               </li>
