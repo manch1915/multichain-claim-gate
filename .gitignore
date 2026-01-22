@@ -25,3 +25,4 @@ Thumbs.db
 .idea/
 contracts/evm/deployments/31337.json
 deployments/local.json
+deployments/shots.json

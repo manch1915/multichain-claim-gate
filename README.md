@@ -4,6 +4,8 @@ A multichain dApp for an airdrop and a members-only area. People connect MetaMas
 
 Runs on Ethereum Sepolia, Base Sepolia and Solana devnet. Testnets only.
 
+![Route page: the demo progress drawn as a course on a nautical chart](docs/screenshots/home.png)
+
 ## What it covers
 
 | Area | What is built |
@@ -22,6 +24,10 @@ Runs on Ethereum Sepolia, Base Sepolia and Solana devnet. Testnets only.
 2. Connect a wallet and sign the message. It costs nothing.
 3. On the Claim page, add your wallet to the demo list. The backend publishes a new root within a few seconds, then claim 250 MRD on each network.
 4. Open the Holders Lounge. With 100 MRD anywhere, or a Meridian Pass on Base Sepolia, the page opens and can hand out a Telegram invite.
+
+| Claim | Gated lounge | Admin |
+| --- | --- | --- |
+| ![Claim cards for Base Sepolia and Solana devnet with the Merkle proof open](docs/screenshots/claim.png) | ![Lounge with the requirement checklist and the members-only content](docs/screenshots/lounge.png) | ![Admin view with whitelist stats and the on-chain roots](docs/screenshots/admin.png) |
 
 ## How it works
 
